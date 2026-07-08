@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { CiCirclePlus } from "react-icons/ci";
 import Popup from './Popup.jsx';
 import Card from './Card.jsx';
-import {DndContext,closestCenter,PointerSensor,useSensor,useSensors,DragOverlay} from '@dnd-kit/core';
-import {SortableContext,verticalListSortingStrategy,arrayMove} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 const Board = () => {
   const [popupBox, setPopupBox] = useState(false);
@@ -17,86 +17,73 @@ const Board = () => {
   const [activeCard, setActiveCard] = useState(null); // for DragOverlay
 
   const sensors = useSensors(useSensor(PointerSensor));
+  const buttonText = columns.length === 0 ? 'Add column' : 'Add another column';
 
-  const buttonText = columns.length === 0 ? 'Add Column' : 'Add another column';
+  const findColumnIndex = (cardId) => columns.findIndex(col =>
+    col.cards.some(card => card.id === cardId)
+  );
 
-  // find which column a card belongs to, by card id
-  const findColumnIndex = (cardId) => {
-    return columns.findIndex(col =>
-      col.cards.some(card => card.id === cardId)
-    );
-  };
-
-  const handleDragStart = (event) => {
-    const { active } = event;
-    // find the card being dragged so DragOverlay can render it
+  const handleDragStart = ({ active }) => {
     for (const col of columns) {
       const card = col.cards.find(c => c.id === active.id);
       if (card) { setActiveCard(card); break; }
     }
   };
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
+  const handleDragEnd = ({ active, over }) => {
     setActiveCard(null);
-
     if (!over || active.id === over.id) return;
 
     const fromColIdx = findColumnIndex(active.id);
     const toColIdx = findColumnIndex(over.id);
-
     if (fromColIdx === -1 || toColIdx === -1) return;
 
     setColumns(prev => {
-      const copy = prev.map(col => ({
-        ...col,
-        cards: [...col.cards],
-      }));
+      const next = prev.map(col => ({ ...col, cards: [...col.cards] }));
 
       if (fromColIdx === toColIdx) {
-        // reorder within same column
-        const col = copy[fromColIdx];
-        const oldIdx = col.cards.findIndex(c => c.id === active.id);
-        const newIdx = col.cards.findIndex(c => c.id === over.id);
-        col.cards = arrayMove(col.cards, oldIdx, newIdx);
+        const column = next[fromColIdx];
+        const oldIndex = column.cards.findIndex(c => c.id === active.id);
+        const newIndex = column.cards.findIndex(c => c.id === over.id);
+        column.cards = arrayMove(column.cards, oldIndex, newIndex);
       } else {
-        // move card to different column
-        const fromCol = copy[fromColIdx];
-        const toCol = copy[toColIdx];
-        const cardIdx = fromCol.cards.findIndex(c => c.id === active.id);
-        const [movedCard] = fromCol.cards.splice(cardIdx, 1);
-        const overIdx = toCol.cards.findIndex(c => c.id === over.id);
-        // insert at the right position, or append if not found
-        if (overIdx === -1) {
-          toCol.cards.push(movedCard);
+        const fromColumn = next[fromColIdx];
+        const toColumn = next[toColIdx];
+        const movedIndex = fromColumn.cards.findIndex(c => c.id === active.id);
+        const [movedCard] = fromColumn.cards.splice(movedIndex, 1);
+        const overIndex = toColumn.cards.findIndex(c => c.id === over.id);
+        if (overIndex === -1) {
+          toColumn.cards.push(movedCard);
         } else {
-          toCol.cards.splice(overIdx, 0, movedCard);
+          toColumn.cards.splice(overIndex, 0, movedCard);
         }
       }
 
-      return copy;
+      return next;
     });
   };
 
   const handleAddCard = (index) => {
     if (!newCardText.trim()) return;
     setColumns(prev => {
-      const copy = [...prev];
-      const col = { ...copy[index] };
-      col.cards = [
-        ...(col.cards || []),
-        // give each card a unique id — dnd-kit needs this
-        { id: `card-${Date.now()}`, title: newCardText },
-      ];
-      copy[index] = col;
-      return copy;
+      const next = [...prev];
+      const column = { ...next[index] };
+      column.cards = [...(column.cards || []), { id: `card-${Date.now()}`, title: newCardText.trim() }];
+      next[index] = column;
+      return next;
     });
     setNewCardText('');
     setAddCardIndex(null);
   };
 
+  const handleAddColumn = (name) => {
+    if (!name.trim()) return;
+    setColumns(prev => [...prev, { name: name.trim(), cards: [] }]);
+    setPopupBox(false);
+  };
+
   return (
-    <div className='text-white flex items-start mt-8'>
+    <div className='text-slate-100 flex min-h-96'>
       {/* DndContext wraps everything that participates in drag */}
       <DndContext
         sensors={sensors}
@@ -176,7 +163,7 @@ const Board = () => {
 
       {popupBox && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md'>
-          <Popup setPopupBox={setPopupBox} columns={columns} title='Add Title' btnText='Add Column' />
+          <Popup setPopupBox={setPopupBox} onSave={handleAddColumn} title='Add Title' btnText='Add Column' />
         </div>
       )}
     </div>

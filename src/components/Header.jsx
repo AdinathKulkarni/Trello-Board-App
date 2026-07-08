@@ -7,62 +7,52 @@ import profile from '../assets/DSC09745 (1).jpg'
 
 const Header = () => {
   return (
-    <div className='flex items-center space-x-16 justify-between'>
+    <div className='flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between'>
+      <div className='flex items-center gap-4'>
+        <div className='flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900/80 shadow-xl ring-1 ring-white/10'>
+          <img src={logo} alt="logo" className='h-10 w-auto' />
+        </div>
+
         <div>
-            <img 
-            src={logo} 
-            alt="logo"
-            width={174}
-            height={104}
-            />
+          <p className='text-xs uppercase tracking-[0.4em] text-cyan-300/80'>Team board</p>
+          <h1 className='text-2xl font-semibold text-white'>Sprint workflow</h1>
+        </div>
+      </div>
+
+      <div className='flex flex-wrap items-center gap-3'>
+        <button className='inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-900 shadow-lg transition hover:bg-slate-100'>
+          <RiHome4Line />
+        </button>
+
+        <button className='inline-flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg transition hover:bg-cyan-400'>
+          <FiPlus />
+        </button>
+
+        <select
+          name="boards"
+          id="boards"
+          defaultValue="kanban"
+          className='rounded-full border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white shadow-lg outline-none transition focus:border-cyan-400'
+        >
+          <option value="kanban">Kanban Board</option>
+          <option value="jira">Jira Board</option>
+        </select>
+      </div>
+
+      <div className='flex min-w-[240px] max-w-sm items-center gap-3'>
+        <div className='relative flex-1'>
+          <input
+            type="text"
+            placeholder='Search tasks'
+            className='w-full rounded-full border border-white/10 bg-slate-800/70 px-4 py-3 pr-11 text-sm text-white shadow-lg outline-none placeholder:text-slate-400 focus:border-cyan-400'
+          />
+          <CiSearch className='pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400' />
         </div>
 
-       <div className='space-x-4 flex items-center w-full'>
-            {/* First Button - Home */}
-            <div className='bg-white rounded-full w-12 h-12 flex items-center justify-center text-[20px] shadow-2xl'>
-                <button className='flex items-center justify-center '>
-                    <RiHome4Line />
-                </button>
-            </div>
-
-            {/* Second Button - Plus */}
-            <div className='bg-white rounded-full w-12 h-12 flex items-center justify-center text-[20px] shadow-2xl'>
-                <button className='flex items-center justify-center'>
-                    <FiPlus />
-                </button>
-            </div>
-
-            {/* Dropdown Select */}
-            <div>
-                <select
-                    name="boards" 
-                    id="boards"
-                    defaultValue=""
-                    className='py-[8px] px-4 rounded-full w-[150px] shadow-2xl bg-white border border-gray-100 appearance-none'
-                    >
-                    <option value="" disabled hidden>Boards</option>
-                    <option value="kanban">KanBan</option>
-                    <option value="Jira">Jira</option>
-                </select>
-            </div>
+        <div className='relative h-12 w-12 overflow-hidden rounded-full border border-white/15 shadow-xl'>
+          <img src={profile} alt="profile pic" className='h-full w-full object-cover' />
         </div>
-
-        <div className='relative w-full max-w-xs'>
-            <input 
-                type="text"
-                placeholder='Search here'
-                className='w-full rounded-full bg-gray-500 px-4 py-[8px] shadow-2xl focus:outline-none text-white placeholder-white'
-            />
-            <CiSearch className='pointer-events-none absolute right-3 text-white top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500' />
-        </div>
-
-        <div className='relative rounded-full w-[70px] h-12  flex items-center justify-center justify-center overflow-hidden'>
-            <img 
-                src={profile} 
-                alt="profile pic"
-                className='w-full object-cover object-center rounded-full'
-            />
-        </div>
+      </div>
 
     </div>
   )
